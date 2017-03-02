@@ -258,7 +258,7 @@ end)
 OnDraw(function (myHero)
         
          if BlitzcrankMenu.Drawings.DQ:Value() then
-		DrawCircle(GetOrigin(myHero), 700, 0, 200, GoS.Red)
+		DrawCircle(GetOrigin(myHero), 925, 0, 200, GoS.Red)
 	end
 
 end)
