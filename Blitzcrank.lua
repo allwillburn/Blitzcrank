@@ -230,7 +230,7 @@ OnTick(function (myHero)
           end
         end 
         if BlitzcrankMenu.AutoMode.W:Value() then        
-          if Ready(_W) and ValidTarget(target, 900) then
+          if Ready(_W)  then
 	  	      CastSpell(_W)
           end
         end
