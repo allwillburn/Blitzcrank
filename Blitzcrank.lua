@@ -1,4 +1,4 @@
-local ver = "0.02"
+local ver = "0.03"
 
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
@@ -13,6 +13,8 @@ if GetObjectName(GetMyHero()) ~= "Blitzcrank" then return end
 
 
 require("DamageLib")
+
+local BlitzcrankQ = {delay = 0.22, range = 925, width = 70, speed = 1750}
 
 function AutoUpdate(data)
     if tonumber(data) > tonumber(ver) then
