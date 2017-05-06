@@ -1,4 +1,4 @@
-local ver = "0.03"
+local ver = "0.04"
 
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
@@ -11,8 +11,10 @@ end
 
 if GetObjectName(GetMyHero()) ~= "Blitzcrank" then return end
 
-
+require("OpenPredict")
 require("DamageLib")
+
+
 
 local BlitzcrankQ = {delay = 0.22, range = 925, width = 70, speed = 1750}
 
@@ -205,8 +207,8 @@ OnTick(function (myHero)
                        end
                  end	
 
-                if IsReady(_E) and ValidTarget(enemy, 900) and BlitzcrankMenu.KillSteal.E:Value() and GetHP(enemy) < getdmg("E",enemy) then
-		                      CastSpell(_E)
+                if IsReady(_R) and ValidTarget(enemy, 450) and BlitzcrankMenu.KillSteal.R:Value() and GetHP(enemy) < getdmg("R",enemy) then
+		                      CastSpell(_R)
   
                 end
       end
