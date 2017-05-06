@@ -1,4 +1,4 @@
-local ver = "0.01"
+local ver = "0.02"
 
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
@@ -35,10 +35,11 @@ local BlitzcrankMenu = Menu("Blitzcrank", "Blitzcrank")
 BlitzcrankMenu:SubMenu("Combo", "Combo")
 
 BlitzcrankMenu.Combo:Boolean("Q", "Use Q in combo", true)
+BlitzcrankMenu.Combo:Slider("Qpred", "Q Hit Chance", 3,0,10,1)
 BlitzcrankMenu.Combo:Boolean("W", "Use W in combo", true)
 BlitzcrankMenu.Combo:Boolean("E", "Use E in combo", true)
 BlitzcrankMenu.Combo:Boolean("R", "Use R in combo", true)
-BlitzcrankMenu.Combo:Slider("RX", "X Enemies to Cast R",3,1,5,1)
+BlitzcrankMenu.Combo:Slider("RX", "Enemies Around to Cast R",3,1,5,1)
 BlitzcrankMenu.Combo:Boolean("Cutlass", "Use Cutlass", true)
 BlitzcrankMenu.Combo:Boolean("Tiamat", "Use Tiamat", true)
 BlitzcrankMenu.Combo:Boolean("BOTRK", "Use BOTRK", true)
@@ -52,6 +53,7 @@ BlitzcrankMenu:SubMenu("AutoMode", "AutoMode")
 BlitzcrankMenu.AutoMode:Boolean("Level", "Auto level spells", false)
 BlitzcrankMenu.AutoMode:Boolean("Ghost", "Auto Ghost", false)
 BlitzcrankMenu.AutoMode:Boolean("Q", "Auto Q", false)
+BlitzcrankMenu.AutoMode:Slider("Qpred", "Q Hit Chance", 3,0,10,1)
 BlitzcrankMenu.AutoMode:Boolean("W", "Auto W", false)
 BlitzcrankMenu.AutoMode:Boolean("E", "Auto E", false)
 BlitzcrankMenu.AutoMode:Boolean("R", "Auto R", false)
@@ -65,11 +67,14 @@ BlitzcrankMenu.LaneClear:Boolean("Tiamat", "Use Tiamat", true)
 
 BlitzcrankMenu:SubMenu("Harass", "Harass")
 BlitzcrankMenu.Harass:Boolean("Q", "Use Q", true)
+BlitzcrankMenu.Harass:Slider("Qpred", "Q Hit Chance", 3,0,10,1)
 BlitzcrankMenu.Harass:Boolean("W", "Use W", true)
 
 BlitzcrankMenu:SubMenu("KillSteal", "KillSteal")
 BlitzcrankMenu.KillSteal:Boolean("Q", "KS w Q", true)
-BlitzcrankMenu.KillSteal:Boolean("E", "KS w E", true)
+BlitzcrankMenu.KillSteal:Slider("Qpred", "Q Hit Chance", 3,0,10,1)
+BlitzcrankMenu.KillSteal:Boolean("R", "KS w R", true)
+
 
 BlitzcrankMenu:SubMenu("AutoIgnite", "AutoIgnite")
 BlitzcrankMenu.AutoIgnite:Boolean("Ignite", "Ignite if killable", true)
@@ -90,6 +95,7 @@ OnTick(function (myHero)
         local BOTRK = GetItemSlot(myHero, 3153)
         local Cutlass = GetItemSlot(myHero, 3144)
         local Randuins = GetItemSlot(myHero, 3143)
+	local BlitzcrankQ = {delay = 0.22, range = 925, width = 70, speed = 1750}
 
 	--AUTO LEVEL UP
 	if BlitzcrankMenu.AutoMode.Level:Value() then
@@ -103,10 +109,11 @@ OnTick(function (myHero)
         --Harass
           if Mix:Mode() == "Harass" then
             if BlitzcrankMenu.Harass.Q:Value() and Ready(_Q) and ValidTarget(target, 925) then
-				if target ~= nil then 
-                                      CastSkillShot(_Q, target)
-                                end
-            end
+				 local QPred = GetPrediction(target,BlitzcrankQ)
+                       if QPred.hitChance > (BlitzcrankMenu.Harass.Qpred:Value() * 0.1) and not QPred:mCollision(1) then
+                                 CastSkillShot(_Q,QPred.castPos)
+                       end
+                 end	
 
             if BlitzcrankMenu.Harass.W:Value() and Ready(_W) and ValidTarget(target, 700) then
 				CastSpell(_W)
@@ -131,16 +138,17 @@ OnTick(function (myHero)
 			 CastTargetSpell(target, Cutlass)
             end
 
+	    if BlitzcrankMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 925) then
+                local QPred = GetPrediction(target,BlitzcrankQ)
+                       if QPred.hitChance > (BlitzcrankMenu.Combo.Qpred:Value() * 0.1) and not QPred:mCollision(1) then
+                                 CastSkillShot(_Q,QPred.castPos)
+                       end
+                 end		
+			
             if BlitzcrankMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 900) then
 			 CastSpell(_E)
 	    end
-
-            if BlitzcrankMenu.Combo.Q:Value() and Ready(_Q) and ValidTarget(target, 925) then
-		     if target ~= nil then 
-                         CastSkillShot(_Q, target)
-                     end
-            end
-
+            
             if BlitzcrankMenu.Combo.Tiamat:Value() and Tiamat > 0 and Ready(Tiamat) and ValidTarget(target, 350) then
 			CastSpell(Tiamat)
             end
@@ -158,7 +166,7 @@ OnTick(function (myHero)
 	    end
 	    
 	    
-            if BlitzcrankMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 450) and (EnemiesAround(myHeroPos(), 700) >= BlitzcrankMenu.Combo.RX:Value()) then
+            if BlitzcrankMenu.Combo.R:Value() and Ready(_R) and ValidTarget(target, 450) and (EnemiesAround(myHeroPos(), 450) >= BlitzcrankMenu.Combo.RX:Value()) then
 			CastSpell(_R)
             end
 
@@ -188,11 +196,12 @@ OnTick(function (myHero)
 
         for _, enemy in pairs(GetEnemyHeroes()) do
                 
-                if IsReady(_Q) and ValidTarget(enemy, 700) and BlitzcrankMenu.KillSteal.Q:Value() and GetHP(enemy) < getdmg("Q",enemy) then
-		         if target ~= nil then 
-                                     CastSkillShot(_Q, target)
-		         end
-                end 
+                if IsReady(_Q) and ValidTarget(enemy, 925) and BlitzcrankMenu.KillSteal.Q:Value() and GetHP(enemy) < getdmg("Q",enemy) then
+		         local QPred = GetPrediction(target,BlitzcrankQ)
+                       if QPred.hitChance > (BlitzcrankMenu.KillSteal.Qpred:Value() * 0.1) and not QPred:mCollision(1) then
+                                 CastSkillShot(_Q,QPred.castPos)
+                       end
+                 end	
 
                 if IsReady(_E) and ValidTarget(enemy, 900) and BlitzcrankMenu.KillSteal.E:Value() and GetHP(enemy) < getdmg("E",enemy) then
 		                      CastSpell(_E)
@@ -226,8 +235,12 @@ OnTick(function (myHero)
         --AutoMode
         if BlitzcrankMenu.AutoMode.Q:Value() then        
           if Ready(_Q) and ValidTarget(target, 925) then
-		      CastSkillShot(_Q, target)
-          end
+		      local QPred = GetPrediction(target,BlitzcrankQ)
+                       if QPred.hitChance > (BlitzcrankMenu.AutoMode.Qpred:Value() * 0.1) and not QPred:mCollision(1) then
+                                 CastSkillShot(_Q,QPred.castPos)
+                       end
+                 end	
+          
         end 
         if BlitzcrankMenu.AutoMode.W:Value() then        
           if Ready(_W)  then
@@ -258,7 +271,7 @@ end)
 OnDraw(function (myHero)
         
          if BlitzcrankMenu.Drawings.DQ:Value() then
-		DrawCircle(GetOrigin(myHero), 925, 0, 200, GoS.Red)
+		DrawCircle(GetOrigin(myHero), 925, 0, 250, GoS.Black)
 	end
 
 end)
@@ -267,10 +280,7 @@ end)
 OnProcessSpell(function(unit, spell)
 	local target = GetCurrentTarget()        
        
-        if unit.isMe and spell.name:lower():find("Blitzcrankempowertwo") then 
-		Mix:ResetAA()	
-	end        
-
+        
         if unit.isMe and spell.name:lower():find("itemtiamatcleave") then
 		Mix:ResetAA()
 	end	
