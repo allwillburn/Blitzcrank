@@ -1,4 +1,4 @@
-local ver = "0.04"
+local ver = "0.05"
 
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
@@ -88,7 +88,7 @@ BlitzcrankMenu.Drawings:Boolean("DQ", "Draw Q Range", true)
 
 BlitzcrankMenu:SubMenu("SkinChanger", "SkinChanger")
 BlitzcrankMenu.SkinChanger:Boolean("Skin", "UseSkinChanger", true)
-BlitzcrankMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 1, 0, 4, 1, function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
+BlitzcrankMenu.SkinChanger:Slider("SelectedSkin", "Select A Skin:", 1, 0, 6, 1, function(SetDCP) HeroSkinChanger(myHero, SetDCP)  end, true)
 
 OnTick(function (myHero)
 	local target = GetCurrentTarget()
