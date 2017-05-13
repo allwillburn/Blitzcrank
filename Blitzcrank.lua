@@ -1,4 +1,4 @@
-local ver = "0.06"
+local ver = "0.07"
 
 
 if FileExist(COMMON_PATH.."MixLib.lua") then
@@ -149,7 +149,7 @@ OnTick(function (myHero)
                        end
                  end		
 			
-            if BlitzcrankMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 900) then
+            if BlitzcrankMenu.Combo.E:Value() and Ready(_E) and ValidTarget(target, 500) then
 			 CastSpell(_E)
 	    end
             
@@ -165,7 +165,7 @@ OnTick(function (myHero)
 			CastSpell(RHydra)
             end
 
-	    if BlitzcrankMenu.Combo.W:Value() and Ready(_W) and ValidTarget(target, 900) then
+	    if BlitzcrankMenu.Combo.W:Value() and Ready(_W) and ValidTarget(target, 500) then
 			CastSpell(_W)
 	    end
 	    
